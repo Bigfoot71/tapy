@@ -14,18 +14,18 @@
 
   "targets": {
     "default": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "output": "build/default"
     },
     "linux-x64-debug": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "linux-x64",
       "output": "build/linux-x64-debug"
     },
     "linux-x64-release": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "linux-x64",
       "output": "build/linux-x64-release",
@@ -35,13 +35,13 @@
       "opt": "O2"
     },
     "windows-x64-debug": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "windows-x64",
       "output": "build/windows-x64-debug"
     },
     "windows-x64-release": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "windows-x64",
       "output": "build/windows-x64-release",
@@ -51,13 +51,13 @@
       "opt": "O2"
     },
     "windows-aarch64-debug": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "windows-aarch64",
       "output": "build/windows-aarch64-debug"
     },
     "windows-aarch64-release": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "windows-aarch64",
       "output": "build/windows-aarch64-release",
@@ -67,13 +67,13 @@
       "opt": "O2"
     },
     "macos-aarch64-debug": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "macos-aarch64",
       "output": "build/macos-aarch64-debug"
     },
     "macos-aarch64-release": {
-      "name": "MyProject",
+      "name": "tapy",
       "type": "executable",
       "target": "macos-aarch64",
       "output": "build/macos-aarch64-release",

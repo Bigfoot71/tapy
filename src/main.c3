@@ -5,7 +5,7 @@ import rlp;
 
 const RLPApp APP @RLPExport("app") =
 {
-	.title        = "MyProject",
+	.title        = "tapy",
 	.flags        = WINDOW_RESIZABLE | VSYNC_HINT,
 	.window_w     = 1152,
 	.window_h     = 648,
