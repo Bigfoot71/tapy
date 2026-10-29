@@ -1,6 +1,6 @@
 {
   "authors": [ "Bigfoot71 <victor.lejuez@protonmail.ch>" ],
-  "version": "0.1.0",
+  "version": "1.0",
 
   "dependency-search-paths": [ "lib" ],
   "dependencies": [ "raylib6", "rlp" ],
