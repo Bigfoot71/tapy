@@ -22,7 +22,7 @@ const float GRID_MIN     = 120.0f;                      // below this, the hint 
 const float PREVIEW_HEAD = 24.0f;                       // preview title bar height
 const float HINT_H       = 24.0f;                       // hint bar height
 const float CHECKER_SIZE = 10.0f;                       // transparency checkerboard cell
-const float CTRL_H       = 7.0f * ROW_H + 6.0f * GAP;   // 7 rows of controls
+const float CTRL_H       = 8.0f * ROW_H + 7.0f * GAP;   // 8 rows of controls
 
 const float SIGMA_MIN    = 0.2f;
 const float SIGMA_MAX    = 6.0f;
@@ -49,6 +49,8 @@ struct Context
 	Kernel   kernel;
 	int      radius_value;      // spinner value (may be mid-edit)
 	bool     radius_editing;
+	bool     linear;            // fractional taps + bilinear sampling
+	int      sub_index;         // linear grid step: 0 = 1/2, 1 = 1/4
 	float    sigma;
 	char[WEIGHT_TEXT_LEN] weight_text;
 	bool     weight_editing;
@@ -57,6 +59,7 @@ struct Context
 	// Generated GLSL (empty until "Generate")
 	DString code;
 	Vec2 code_scroll;
+	bool code_linear;
 
 	// Images
 	RLTexture2D       src;
@@ -113,6 +116,7 @@ fn void init(String[] args) @RLPExport("init")
 
 	// Default kernel: 3x3 box blur
 	ctx.kernel.radius   = 1;
+	ctx.kernel.sub      = 1;
 	ctx.kernel.selected = -1;
 	ctx.kernel.fill();
 	ctx.kernel.uniform();
@@ -140,6 +144,7 @@ fn void tick(float dt) @RLPExport("tick")
 	// Update
 	handle_drop();
 	update_radius();
+	update_mode();
 	if (ctx.pending)
 	{
 		run_convolution();

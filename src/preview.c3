@@ -55,6 +55,7 @@ fn void generate()
 	ctx.code.clear();
 	ctx.kernel.to_glsl(&ctx.code);
 	ctx.code_scroll = { 0.0f, 0.0f };
+	ctx.code_linear = ctx.kernel.sub > 1;
 	ctx.pending = true;
 }
 
@@ -87,6 +88,8 @@ fn void run_convolution() => @pool()
 
 	Vec2 texel = { 1.0f / (float)ctx.src.width, 1.0f / (float)ctx.src.height };
 	ctx.shader.set_value(ctx.shader.get_location("texelSize"), &texel, RLShaderUniformDataType.VEC2);
+
+	ctx.src.set_filter(ctx.code_linear ? RLTextureFilter.BILINEAR : RLTextureFilter.POINT);
 
 	rl::gl_set_blend_factors(1, 0, 0x8006); // GL_ONE, GL_ZERO, GL_FUNC_ADD
 	rl::@texture_mode(ctx.dst)
