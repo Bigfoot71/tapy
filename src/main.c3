@@ -9,11 +9,16 @@ import rlp;
 // Constants
 // ================================
 
+const int WINDOW_MIN_W = 800;
+const int WINDOW_MIN_H = 450;
+
 const float ROW_H        = 26.0f;
 const float GAP          = 6.0f;
 const float MARGIN       = 12.0f;
 const float CODE_PAD     = 8.0f;
 const float CODE_GAP     = 4.0f;                        // extra space between two code lines
+const float CODE_MIN_H   = 80.0f;                       // below this, the code panel is hidden
+const float GRID_MIN     = 120.0f;                      // below this, the hint bar is hidden
 const float PREVIEW_HEAD = 24.0f;                       // preview title bar height
 const float HINT_H       = 24.0f;                       // hint bar height
 const float CHECKER_SIZE = 10.0f;                       // transparency checkerboard cell
@@ -79,6 +84,8 @@ struct Layout
 	RLRectangle grid;          // square
 	RLRectangle ctrl;
 	RLRectangle hint;          // contextual help bar
+	bool show_code;            // false when there is not enough room
+	bool show_hint;            // false when there is even less room
 }
 
 // ================================
@@ -100,6 +107,7 @@ const RLPApp APP @RLPExport("app") =
 fn void init(String[] args) @RLPExport("init")
 {
 	rg::load_style_from_memory($embed("../embed/style_genesis.rgs"));
+	rl::set_window_min_size(WINDOW_MIN_W, WINDOW_MIN_H);
 
 	ctx.code.init(mem);
 
@@ -149,12 +157,12 @@ fn void tick(float dt) @RLPExport("tick")
 
 	if (locked) rg::lock();
 
-	draw_code(l.code);
+	if (l.show_code) draw_code(l.code);
 	draw_preview(0, l.previews[0]);
 	draw_preview(1, l.previews[1]);
 	draw_grid(l.grid);
 	draw_controls(l.ctrl);
-	draw_hint(l);
+	if (l.show_hint) draw_hint(l);
 
 	if (locked) rg::unlock();
 }
@@ -169,9 +177,23 @@ fn Layout compute_layout(float w, float h)
 	float col_w = math::clamp(w * 0.3f, 260.0f, 380.0f);
 	col_w = math::min(col_w, math::max(w - 300.0f, 160.0f));
 
-	float side = math::max(math::min(col_w, h * 0.42f), 60.0f);
-	float cy   = MARGIN + side + MARGIN;       // controls top
-	float coy  = cy + CTRL_H + MARGIN;         // code top
+	// Preferred layout with everything shown
+	float side  = math::max(math::min(col_w, h * 0.42f), 60.0f);
+	float spare = h - MARGIN - (MARGIN + side + MARGIN + CTRL_H + MARGIN); // space under the controls
+
+	bool show_code = spare >= HINT_H + GAP + CODE_MIN_H;
+	bool show_hint = spare >= HINT_H;
+
+	if (!show_code)
+	{
+		float with_hint = h - 3.0f * MARGIN - CTRL_H - HINT_H - GAP;
+		show_hint = with_hint >= GRID_MIN;
+		float avail = show_hint ? with_hint : h - 3.0f * MARGIN - CTRL_H;
+		side = math::clamp(avail, 60.0f, col_w);
+	}
+
+	float cy  = MARGIN + side + MARGIN;       // controls top
+	float coy = cy + CTRL_H + MARGIN;         // code top
 
 	// Right area: previews
 	float rx = col_w + 2.0f * MARGIN;
@@ -193,10 +215,12 @@ fn Layout compute_layout(float w, float h)
 	float s_stack = math::min(rw / iw, (half_h - PREVIEW_HEAD) / ih);
 
 	Layout l;
+	l.show_code = show_code;
+	l.show_hint = show_hint;
 	l.grid = { MARGIN + (col_w - side) * 0.5f, MARGIN, side, side };
 	l.ctrl = { MARGIN, cy, col_w, CTRL_H };
 	l.hint = { MARGIN, h - MARGIN - HINT_H, col_w, HINT_H };
-	l.code = { MARGIN, coy, col_w, math::max(l.hint.y - GAP - coy, 60.0f) };
+	l.code = { MARGIN, coy, col_w, math::max(l.hint.y - GAP - coy, CODE_MIN_H) };
 
 	if (s_side >= s_stack)
 	{
